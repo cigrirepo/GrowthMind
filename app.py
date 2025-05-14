@@ -3,14 +3,11 @@ import json
 import streamlit as st
 import openai
 
-# ── OpenAI setup ─────────────────────────────────────────────────────────────
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# instantiate once at module‐top
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def call_openai(prompt: str, model="gpt-4o-mini") -> str:
-    if not openai.api_key:
-        st.error("🔑 OpenAI key not set in environment!")
-        st.stop()
-    resp = openai.ChatCompletion.create(
+    resp = client.chat.completions.create(
         model=model,
         messages=[
             {"role": "system", "content": ""},
@@ -19,6 +16,7 @@ def call_openai(prompt: str, model="gpt-4o-mini") -> str:
         temperature=0.3,
         max_tokens=1000,
     )
+    # extract the assistant’s reply
     return resp.choices[0].message.content.strip()
 
 # ── Streamlit UI ──────────────────────────────────────────────────────────────
