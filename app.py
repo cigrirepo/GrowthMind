@@ -69,8 +69,19 @@ Use your own plan to solve the task:
             try:
                 raw = call_openai(prompt)
                 # 3. Parse & display
+                # Clean the response by removing markdown code block formatting
+                cleaned_response = raw
+                # Remove markdown code blocks (```json and ```)
+                if cleaned_response.startswith("```json"):
+                    cleaned_response = cleaned_response.replace("```json", "", 1)
+                if cleaned_response.endswith("```"):
+                    cleaned_response = cleaned_response[:-3]
+                
+                # Strip any leading/trailing whitespace
+                cleaned_response = cleaned_response.strip()
+                
                 try:
-                    data = json.loads(raw)
+                    data = json.loads(cleaned_response)
                     st.json(data)
                 except json.JSONDecodeError:
                     st.warning("⚠️ Response wasn't valid JSON — showing raw output:")
