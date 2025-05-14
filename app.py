@@ -1,12 +1,15 @@
 import os
-import json
+from openai import OpenAI
 import streamlit as st
-import openai
 
-# instantiate once at module‐top
+# Instantiate the new client once
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def call_openai(prompt: str, model="gpt-4o-mini") -> str:
+    if not client.api_key:
+        st.error("🔑 OPENAI_API_KEY not set!")
+        st.stop()
+
     resp = client.chat.completions.create(
         model=model,
         messages=[
@@ -16,8 +19,8 @@ def call_openai(prompt: str, model="gpt-4o-mini") -> str:
         temperature=0.3,
         max_tokens=1000,
     )
-    # extract the assistant’s reply
     return resp.choices[0].message.content.strip()
+
 
 # ── Streamlit UI ──────────────────────────────────────────────────────────────
 st.set_page_config(page_title="SELF-DISCOVER Assistant", layout="wide")
